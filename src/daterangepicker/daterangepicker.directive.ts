@@ -245,8 +245,14 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
     this.picker.hide(e);
   }
 
+  @HostListener('focusin', ['$event'])
+  onFocus(): void {
+    this.open();
+  }
+
   @HostListener('blur')
   onBlur(): void {
+    this.hide();
     this.onTouched();
   }
 
