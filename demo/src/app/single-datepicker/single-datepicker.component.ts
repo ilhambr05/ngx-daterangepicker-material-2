@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import dayjs from 'dayjs/esm';
+import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
 import { LocaleConfig } from '../../../../src/daterangepicker';
-import weekday from 'dayjs/esm/plugin/weekday';
-import { Dayjs } from 'dayjs/esm';
+import weekday from 'dayjs/plugin/weekday';
+import { Dayjs } from 'dayjs';
 dayjs.extend(weekday);
 dayjs.locale('fr');
 

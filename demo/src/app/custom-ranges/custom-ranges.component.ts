@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { DateRange, DateRanges, TimePeriod } from '../../../../src/daterangepicker/daterangepicker.component';
-import dayjs, { Dayjs } from 'dayjs/esm';
+import dayjs, { Dayjs } from 'dayjs';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector

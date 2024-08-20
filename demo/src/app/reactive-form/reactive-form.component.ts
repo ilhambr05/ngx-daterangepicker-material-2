@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import dayjs from 'dayjs/esm';
+import dayjs from 'dayjs';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { LocaleConfig } from '../../../../src/daterangepicker';
 
