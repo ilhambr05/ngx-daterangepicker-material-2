@@ -386,6 +386,24 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
     return e.stopPropagation();
   }
 
+  /**
+   * Handles the focusin event for the input element.
+   *
+   * This method is triggered when the input field gains focus.
+   * It sets the `isShown` property to `true`, indicating that
+   * the date range picker or related UI should be shown. 
+   *
+   * The use of `focusin` instead of `focus` ensures that the 
+   * event bubbles up through the DOM, making it easier to 
+   * capture focus events on the parent element.
+   *
+   * @param target - The DOM element that received focus.
+   */
+  @HostListener('focusin', ['$event.target'])
+  onFocus(target: any): void {
+    this.show();
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if ((changes.startDate || changes.endDate) && this.inline) {
       this.updateView();
