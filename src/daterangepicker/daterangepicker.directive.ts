@@ -245,6 +245,11 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
     this.picker.hide(e);
   }
 
+  @HostListener('keydown.tab', ['$event'])
+  onTabPress(e: KeyboardEvent): void {
+    this.picker.hide(e);
+  }
+
   @HostListener('focusin', ['$event'])
   onFocus(): void {
     this.open();
@@ -252,7 +257,6 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
 
   @HostListener('blur')
   onBlur(): void {
-    this.hide();
     this.onTouched();
   }
 
