@@ -256,8 +256,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
   @Input() closeOnAutoApply = true;
   @Output() choosedDate: EventEmitter<ChosenDate>;
   @Output() rangeClicked: EventEmitter<DateRange>;
-  @Output() customRangeClicked: EventEmitter<DateRange>;
-  @Output() rangeLabelChanged: EventEmitter<RangeLabel>;
+  @Output() showCalInRangesChanged: EventEmitter<boolean>;
   @Output() datesUpdated: EventEmitter<TimePeriod>;
   @Output() startDateChanged: EventEmitter<StartDate>;
   @Output() endDateChanged: EventEmitter<EndDate>;
@@ -300,8 +299,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
   constructor(private el: ElementRef, private ref: ChangeDetectorRef, private localeHolderService: LocaleService) {
     this.choosedDate = new EventEmitter();
     this.rangeClicked = new EventEmitter();
-    this.customRangeClicked = new EventEmitter();
-    this.rangeLabelChanged = new EventEmitter();
+    this.showCalInRangesChanged = new EventEmitter();
     this.datesUpdated = new EventEmitter();
     this.startDateChanged = new EventEmitter();
     this.endDateChanged = new EventEmitter();
@@ -487,6 +485,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
         this.rangesArray.push(this.locale.customRangeLabel);
       }
       this.showCalInRanges = !this.rangesArray.length || this.alwaysShowCalendars;
+      this.showCalInRangesChanged.emit(this.showCalInRanges);
       if (!this.timePicker) {
         this.startDate = this.startDate.startOf('day');
         this.endDate = this.endDate.endOf('day');
@@ -938,7 +937,6 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
             ) {
               customRange = false;
               this.chosenRange = this.rangesArray[i];
-              this.rangeLabelChanged.emit({ isCustom: false });
               break;
             }
           } else {
@@ -949,7 +947,6 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
             ) {
               customRange = false;
               this.chosenRange = this.rangesArray[i];
-              this.rangeLabelChanged.emit({ isCustom: false });
               break;
             }
           }
@@ -962,9 +959,9 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
         } else {
           this.chosenRange = null;
         }
-        this.rangeLabelChanged.emit({ isCustom: true });
         // if custom label: show calendar
         this.showCalInRanges = true;
+        this.showCalInRangesChanged.emit(this.showCalInRanges);
       }
     }
 
@@ -1283,7 +1280,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
     if (label === this.locale.customRangeLabel) {
       this.isShown = true; // show calendars
       this.showCalInRanges = true;
-      this.customRangeClicked.emit();
+      this.showCalInRangesChanged.emit(this.showCalInRanges);
     } else {
       const dates = this.ranges[label];
       if (this.minDate && dates[0].isBefore(this.minDate)) {
@@ -1302,6 +1299,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
         this.calculateChosenLabel();
       }
       this.showCalInRanges = !this.rangesArray.length || this.alwaysShowCalendars;
+      this.showCalInRangesChanged.emit(this.showCalInRanges);
 
       if (!this.timePicker) {
         this.startDate = this.startDate.startOf('day');

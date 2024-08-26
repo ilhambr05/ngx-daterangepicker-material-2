@@ -51,9 +51,7 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
   // eslint-disable-next-line @angular-eslint/no-output-rename
   @Output('rangeClicked') rangeClicked: EventEmitter<DateRange> = new EventEmitter();
   // eslint-disable-next-line @angular-eslint/no-output-rename
-  @Output('customRangeClicked') customRangeClicked: EventEmitter<DateRange> = new EventEmitter();
-  // eslint-disable-next-line @angular-eslint/no-output-rename
-  @Output('rangeLabelChanged') rangeLabelChanged: EventEmitter<DateRange> = new EventEmitter();
+  @Output('showCalInRangesChanged') showCalInRangesChanged: EventEmitter<boolean> = new EventEmitter();
   // eslint-disable-next-line @angular-eslint/no-output-rename
   @Output('datesUpdated') datesUpdated: EventEmitter<TimePeriod> = new EventEmitter();
   @Output() startDateChanged: EventEmitter<StartDate> = new EventEmitter();
@@ -174,7 +172,7 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
   private valueHolder: TimePeriod | null;
   private localeDiffer: KeyValueDiffer<string, any>;
   private localeHolder: LocaleConfig = {};
-  private isCustomRangeLabel: boolean;
+  private showCallInRanges: boolean;
 
   constructor(
     public viewContainerRef: ViewContainerRef,
@@ -324,14 +322,9 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
     this.picker.rangeClicked.asObservable().subscribe((range: DateRange) => {
       this.rangeClicked.emit(range);
     });
-    this.picker.customRangeClicked.asObservable().subscribe(() => {
-      const container = this.picker.pickerContainer.nativeElement;
-      const element = this.el.nativeElement;
-      this.adjustPositionCustomRangePicker(element, container, 'auto');
-      this.customRangeClicked.emit();
-    });
-    this.picker.rangeLabelChanged.asObservable().subscribe((rangeLabel: RangeLabel) => {
-      this.isCustomRangeLabel = rangeLabel.isCustom;
+    this.picker.showCalInRangesChanged.asObservable().subscribe((showCalInRanges: boolean) => {
+      this.showCallInRanges = showCalInRanges;
+      this.adjustToFitCalInRange();
     });
     this.picker.datesUpdated.asObservable().subscribe((range: TimePeriod) => {
       this.datesUpdated.emit(range);
@@ -445,14 +438,7 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
         right: 'auto'
       };
     } else if (this.opens === 'fit') {
-      if (this.isCustomRangeLabel) {
-        this.adjustPositionCustomRangePicker(element, container, containerTop);
-      } else {
-        this.renderer.setStyle(container, 'top', containerTop);
-        this.renderer.setStyle(container, 'left', 'auto');
-        this.renderer.setStyle(container, 'right', 'auto');
-        this.renderer.setStyle(container, 'max-width', '220px');
-      }
+      this.adjustToFitCalInRange({ containerTop });
     } else {
       const position = element.offsetLeft + element.clientWidth / 2 - container.clientWidth / 2;
       if (position < 0) {
@@ -482,11 +468,20 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
    * based on the element's current position, the desired container width, and the available viewport width.
    * It ensures that the container does not go off-screen on either the left or right side.
    *
-   * @param element - The HTML element that triggers the date range picker.
-   * @param container - The date range picker container element that needs positioning.
    * @param containerTop - The calculated top position for the container, or 'auto' if not specified.
    */
-  private adjustPositionCustomRangePicker(element: HTMLElement, container: HTMLElement, containerTop: string): void {
+  private adjustToFitCalInRange({ containerTop = 'auto' }: { containerTop?: string } = {}): void {
+    const container = this.picker.pickerContainer.nativeElement;
+    const element = this.el.nativeElement;
+
+    if (!this.showCallInRanges) {
+      this.renderer.setStyle(container, 'top', containerTop);
+      this.renderer.setStyle(container, 'left', 'auto');
+      this.renderer.setStyle(container, 'right', 'auto');
+      this.renderer.setStyle(container, 'max-width', '220px');
+      return;
+    }
+
     const rect = element.getBoundingClientRect();
     const initialLeft = rect.left;
     const initialRight = rect.right;
