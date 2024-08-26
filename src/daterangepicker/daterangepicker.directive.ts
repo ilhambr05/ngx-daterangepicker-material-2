@@ -51,6 +51,8 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
   // eslint-disable-next-line @angular-eslint/no-output-rename
   @Output('rangeClicked') rangeClicked: EventEmitter<DateRange> = new EventEmitter();
   // eslint-disable-next-line @angular-eslint/no-output-rename
+  @Output('customRangeClicked') customRangeClicked: EventEmitter<DateRange> = new EventEmitter();
+  // eslint-disable-next-line @angular-eslint/no-output-rename
   @Output('rangeLabelChanged') rangeLabelChanged: EventEmitter<DateRange> = new EventEmitter();
   // eslint-disable-next-line @angular-eslint/no-output-rename
   @Output('datesUpdated') datesUpdated: EventEmitter<TimePeriod> = new EventEmitter();
@@ -322,6 +324,12 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
     this.picker.rangeClicked.asObservable().subscribe((range: DateRange) => {
       this.rangeClicked.emit(range);
     });
+    this.picker.customRangeClicked.asObservable().subscribe(() => {
+      const container = this.picker.pickerContainer.nativeElement;
+      const element = this.el.nativeElement;
+      this.adjustPositionCustomRangePicker(element, container, 'auto');
+      this.customRangeClicked.emit();
+    });
     this.picker.rangeLabelChanged.asObservable().subscribe((rangeLabel: RangeLabel) => {
       this.isCustomRangeLabel = rangeLabel.isCustom;
     });
@@ -438,31 +446,7 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
       };
     } else if (this.opens === 'fit') {
       if (this.isCustomRangeLabel) {
-        const rect = element.getBoundingClientRect();
-        const initialLeft = rect.left;
-        const initialRight = rect.right;
-        const containerWidth = 740; // assuming 740px is the desired width
-        const viewportWidth = window.innerWidth;
-
-        let leftPosition = initialLeft;
-        let rightPosition = 0;
-
-        // Check if container would go off-screen
-        const offset = initialLeft + containerWidth;
-        if (offset > viewportWidth) {
-          leftPosition = offset - viewportWidth + 30; // 10px padding from the right edge
-          rightPosition = viewportWidth - initialRight;
-        }
-
-        // Ensure it doesn't go off on the left side
-        if (leftPosition < 0) {
-          leftPosition = 0;
-        }
-
-        this.renderer.setStyle(container, 'top', containerTop);
-        this.renderer.setStyle(container, 'left', `-${leftPosition}px`, RendererStyleFlags2.Important);
-        this.renderer.setStyle(container, 'right', rightPosition === 0 ? 'auto' : `-${rightPosition}px`, RendererStyleFlags2.Important);
-        this.renderer.setStyle(container, 'max-width', '762px');
+        this.adjustPositionCustomRangePicker(element, container, containerTop);
       } else {
         this.renderer.setStyle(container, 'top', containerTop);
         this.renderer.setStyle(container, 'left', 'auto');
@@ -490,6 +474,44 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
       this.renderer.setStyle(container, 'left', style.left);
       this.renderer.setStyle(container, 'right', style.right);
     }
+  }
+
+  /**
+   * Adjusts the position and styling of the date range picker container to ensure it fits within the viewport
+   * when a custom range is selected. This function calculates the appropriate left and right positioning
+   * based on the element's current position, the desired container width, and the available viewport width.
+   * It ensures that the container does not go off-screen on either the left or right side.
+   *
+   * @param element - The HTML element that triggers the date range picker.
+   * @param container - The date range picker container element that needs positioning.
+   * @param containerTop - The calculated top position for the container, or 'auto' if not specified.
+   */
+  private adjustPositionCustomRangePicker(element: HTMLElement, container: HTMLElement, containerTop: string): void {
+    const rect = element.getBoundingClientRect();
+    const initialLeft = rect.left;
+    const initialRight = rect.right;
+    const containerWidth = 740; // assuming 740px is the desired width
+    const viewportWidth = window.innerWidth;
+
+    let leftPosition = initialLeft;
+    let rightPosition = 0;
+
+    // Check if container would go off-screen
+    const offset = initialLeft + containerWidth;
+    if (offset > viewportWidth) {
+      leftPosition = offset - viewportWidth + 30; // padding from the right edge
+      rightPosition = viewportWidth - initialRight;
+    }
+
+    // Ensure it doesn't go off on the left side
+    if (leftPosition < 0) {
+      leftPosition = 0;
+    }
+
+    this.renderer.setStyle(container, 'top', containerTop || 'auto');
+    this.renderer.setStyle(container, 'left', `-${leftPosition}px`, RendererStyleFlags2.Important);
+    this.renderer.setStyle(container, 'right', rightPosition === 0 ? 'auto' : `-${rightPosition}px`, RendererStyleFlags2.Important);
+    this.renderer.setStyle(container, 'max-width', '762px');
   }
 
   private setValue(val: TimePeriod) {

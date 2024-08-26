@@ -256,6 +256,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
   @Input() closeOnAutoApply = true;
   @Output() choosedDate: EventEmitter<ChosenDate>;
   @Output() rangeClicked: EventEmitter<DateRange>;
+  @Output() customRangeClicked: EventEmitter<DateRange>;
   @Output() rangeLabelChanged: EventEmitter<RangeLabel>;
   @Output() datesUpdated: EventEmitter<TimePeriod>;
   @Output() startDateChanged: EventEmitter<StartDate>;
@@ -299,6 +300,8 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
   constructor(private el: ElementRef, private ref: ChangeDetectorRef, private localeHolderService: LocaleService) {
     this.choosedDate = new EventEmitter();
     this.rangeClicked = new EventEmitter();
+    this.customRangeClicked = new EventEmitter();
+    this.rangeLabelChanged = new EventEmitter();
     this.datesUpdated = new EventEmitter();
     this.startDateChanged = new EventEmitter();
     this.endDateChanged = new EventEmitter();
@@ -1280,6 +1283,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
     if (label === this.locale.customRangeLabel) {
       this.isShown = true; // show calendars
       this.showCalInRanges = true;
+      this.customRangeClicked.emit();
     } else {
       const dates = this.ranges[label];
       if (this.minDate && dates[0].isBefore(this.minDate)) {
