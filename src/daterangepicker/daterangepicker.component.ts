@@ -46,6 +46,10 @@ export interface DateRange {
   dates: [Dayjs, Dayjs];
 }
 
+export interface RangeLabel {
+  isCustom: boolean;
+}
+
 export interface ChosenDate {
   chosenLabel: string;
   startDate: Dayjs;
@@ -252,6 +256,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
   @Input() closeOnAutoApply = true;
   @Output() choosedDate: EventEmitter<ChosenDate>;
   @Output() rangeClicked: EventEmitter<DateRange>;
+  @Output() rangeLabelChanged: EventEmitter<RangeLabel>;
   @Output() datesUpdated: EventEmitter<TimePeriod>;
   @Output() startDateChanged: EventEmitter<StartDate>;
   @Output() endDateChanged: EventEmitter<EndDate>;
@@ -930,6 +935,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
             ) {
               customRange = false;
               this.chosenRange = this.rangesArray[i];
+              this.rangeLabelChanged.emit({ isCustom: false });
               break;
             }
           } else {
@@ -940,6 +946,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
             ) {
               customRange = false;
               this.chosenRange = this.rangesArray[i];
+              this.rangeLabelChanged.emit({ isCustom: false });
               break;
             }
           }
@@ -952,6 +959,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
         } else {
           this.chosenRange = null;
         }
+        this.rangeLabelChanged.emit({ isCustom: true });
         // if custom label: show calendar
         this.showCalInRanges = true;
       }
