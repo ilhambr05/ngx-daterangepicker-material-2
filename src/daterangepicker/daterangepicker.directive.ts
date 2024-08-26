@@ -15,7 +15,8 @@ import {
   Output,
   EventEmitter,
   Renderer2,
-  HostBinding
+  HostBinding,
+  RendererStyleFlags2
 } from '@angular/core';
 import { ChosenDate, DateRange, DaterangepickerComponent, DateRanges, EndDate, StartDate, TimePeriod } from './daterangepicker.component';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -417,9 +418,37 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
     } else if (this.opens === 'right') {
       style = {
         top: containerTop,
-        left: element.offsetLeft + 'px',
+        left: element.offsetLeft + element.clientWidth - container.clientWidth + 'px',
         right: 'auto'
       };
+    } else if (this.opens === 'fit') {
+      // Fit logic
+      const rect = element.getBoundingClientRect();
+      const initialLeft = rect.left;
+      const initialRight = rect.right;
+      const containerWidth = 740; // assuming 740px is the desired width
+      const viewportWidth = window.innerWidth;
+      let leftPosition = initialLeft;
+      let rightPosition = 0;
+
+      // Check if container would go off-screen
+      const offset = initialLeft + containerWidth;
+      if (offset > viewportWidth) {
+        leftPosition = offset - viewportWidth + 30; // 10px padding from the right edge
+        rightPosition = viewportWidth - initialRight;
+      }
+
+      // Ensure it doesn't go off on the left side
+      if (leftPosition < 0) {
+        leftPosition = 0;
+      }
+
+      this.renderer.setStyle(container, 'top', containerTop);
+      this.renderer.setStyle(container, 'left', `-${leftPosition}px`, RendererStyleFlags2.Important);
+      this.renderer.setStyle(container, 'right', rightPosition === 0 ? 'auto' : `-${rightPosition}px`, RendererStyleFlags2.Important);
+      this.renderer.setStyle(container, 'max-width', '762px');
+
+      return;
     } else {
       const position = element.offsetLeft + element.clientWidth / 2 - container.clientWidth / 2;
       if (position < 0) {
