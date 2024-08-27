@@ -1281,6 +1281,8 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
       this.isShown = true; // show calendars
       this.showCalInRanges = true;
       this.showCalInRangesChanged.emit(this.showCalInRanges);
+      // keep the predefined range selection active until the user selects a date outside of the predefined ranges
+      this.calculateChosenLabel();
     } else {
       const dates = this.ranges[label];
       if (this.minDate && dates[0].isBefore(this.minDate)) {
