@@ -275,6 +275,10 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
 
   @HostListener('keyup', ['$event'])
   inputChanged(e: KeyboardEvent): void {
+    // ensures the selected date on the calendar remains intact when the user navigates between inputs using the Tab key
+    if (e.key === 'Tab') {
+      return;
+    }
     if ((e.target as HTMLElement).tagName.toLowerCase() !== 'input') {
       return;
     }
