@@ -492,7 +492,7 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
     const containerWidth = 740; // assuming 740px is the desired width
     const viewportWidth = window.innerWidth;
 
-    let leftPosition = null;
+    let leftPosition = 0;
     let rightPosition = 562;
 
     // Check if container would go off-screen
@@ -508,7 +508,7 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
     }
 
     this.renderer.setStyle(container, 'top', containerTop || 'auto');
-    this.renderer.setStyle(container, 'left', leftPosition ? `-${leftPosition}px` : 'auto', RendererStyleFlags2.Important);
+    this.renderer.setStyle(container, 'left', `${leftPosition ? '-' + leftPosition : leftPosition}px`, RendererStyleFlags2.Important);
     this.renderer.setStyle(container, 'right', `-${rightPosition}px`, RendererStyleFlags2.Important);
     this.renderer.setStyle(container, 'max-width', '762px');
   }
