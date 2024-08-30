@@ -221,7 +221,7 @@
                         </ng-container>
                         <th colspan="5" class="month">
                             <ng-container *ngIf="showDropdowns && calendarVariables.right.dropdowns">
-                                <div class="dropdowns">
+                                <div class="dropdowns month">
                                     {{ this.locale.monthNames[calendarVariables?.right?.calendar[1][1].month()] }}
                                     <select class="monthselect" (change)="monthChanged($event, sideEnum.right)">
                                         <option
@@ -240,7 +240,7 @@
                                         </option>
                                     </select>
                                 </div>
-                                <div class="dropdowns">
+                                <div class="dropdowns year">
                                     {{ calendarVariables?.right?.calendar[1][1].format(' YYYY') }}
                                     <select class="yearselect" (change)="yearChanged($event, sideEnum.right)">
                                         <option
