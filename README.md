@@ -180,24 +180,25 @@ You can use bellow options when using the ranges. The default are `false`.
 | customRangeDirection | boolean | set to `true` if you want to allow selection range from end date first |
 | lockStartDate | boolean | set to `true` if you want to lock start date and change only the end date |
 
-#### Open datepicker from outside
+#### Open single datepicker from outside
 
 It is possible to open datepicker from outside. You should create an input with attached datepicker directive and a button with "ngx-daterangepicker-action" class (to prevent triggering of clickOutside).
 ```html
-    <input
-      ngxDaterangepickerMd
-      [closeOnAutoApply]="true"
-      [autoApply]="true"
-      [singleDatePicker]="true"
-      [linkedCalendars]="true"
-      [(ngModel)]="selected"
-      (datesUpdated)="datesUpdated($event)"
-      class="datepicker-calendar-icon">
+<input
+  ngxDaterangepickerMd
+  [closeOnAutoApply]="true"
+  [autoApply]="true"
+  [singleDatePicker]="true"
+  [linkedCalendars]="true"
+  [(ngModel)]="selected"
+  (datesUpdated)="datesUpdated($event)"
+  class="datepicker-calendar-icon">
 
-    <a class="ngx-daterangepicker-action" (click)="openDatepicker()">
-      Open
-    </a>
+<a class="ngx-daterangepicker-action" (click)="openDatepicker()">
+  Open
+</a>
 ```
+In your component's TypeScript file, use the following code to open the datepicker when the trigger is clicked:
 
 ```javascript
 
@@ -209,6 +210,40 @@ It is possible to open datepicker from outside. You should create an input with 
     this.pickerDirective.open();
   }
 ```
+
+### Open multiple datepickers from outside
+
+The approach above works well for a single datepicker, but if you have multiple datepickers on the same page, triggering one will cause all of them to open simultaneously. To avoid this, you can use **template reference variables** to target each datepicker individually and then call the `.focus()` event from anywhere.
+
+```html
+  <input 
+    ngxDaterangepickerMd
+    #verifyDatePicker
+    [singleDatePicker]="true"
+    [(ngModel)]="verifySelected"
+    (datesUpdated)="verifyDatesUpdated($event)" 
+  />
+  <a class="ngx-daterangepicker-action" (click)="verifyDatePicker.focus()"></a>
+  <input 
+    ngxDaterangepickerMd
+    #appointmentDatePicker
+    [singleDatePicker]="true"
+    [(ngModel)]="aptSelected"
+    (datesUpdated)="aptDatesUpdated($event)" 
+  />
+  <a class="ngx-daterangepicker-action" (click)="appointmentDatePicker.focus()"></a>
+```
+
+In this setup:
+
+- Each datepicker input is assigned a unique template reference variable (`#verifyDatePicker`, `#appointmentDatePicker`).
+- The associated trigger element uses the `.focus()` method to open the datepicker, ensuring that only the targeted datepicker is activated.
+
+This approach eliminates the need for additional JavaScript code, resulting in a cleaner and more maintainable implementation. Always remember to apply the ngx-daterangepicker-action class to the trigger elements to prevent unintended closures when clicking outside.
+
+### Enhancing User Experience with Keyboard Navigation for Multiple Datepickers
+
+Enabling Tab key navigation for multiple datepickers significantly enhances user experience, particularly in forms requiring multiple date inputs, such as booking systems or scheduling applications. This approach improves accessibility by allowing users, including those with disabilities or those who prefer keyboard navigation, to efficiently move through datepicker inputs without relying on a mouse. As users press the Tab key, focus shifts between datepicker inputs, opening each one automatically if configured to do so, which streamlines the date selection process. This method not only increases efficiency and reduces errors but also ensures a consistent and intuitive user experience, making your application more accessible and user-friendly. By adopting this best practice, you cater to a wider range of users, ultimately improving the usability and inclusivity of your forms.
 
 ### Timepicker
 
