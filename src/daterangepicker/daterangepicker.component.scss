@@ -548,6 +548,12 @@ $input-height: 3rem !default;
     display: none;
   }
 
+  .drp-selected {
+    display: inline-block;
+    font-size: 12px;
+    padding-right: 0.5rem;
+  }
+
   /* button */
   .buttons {
     text-align: right;

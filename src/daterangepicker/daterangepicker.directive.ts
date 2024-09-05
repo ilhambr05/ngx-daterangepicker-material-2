@@ -15,9 +15,19 @@ import {
   Output,
   EventEmitter,
   Renderer2,
-  HostBinding
+  HostBinding,
+  RendererStyleFlags2
 } from '@angular/core';
-import { ChosenDate, DateRange, DaterangepickerComponent, DateRanges, EndDate, StartDate, TimePeriod } from './daterangepicker.component';
+import {
+  ChosenDate,
+  DateRange,
+  DaterangepickerComponent,
+  DateRanges,
+  EndDate,
+  RangeLabel,
+  StartDate,
+  TimePeriod
+} from './daterangepicker.component';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import dayjs from 'dayjs/esm';
 import { LocaleConfig } from './daterangepicker.config';
@@ -40,6 +50,8 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
   @Output('change') onChange: EventEmitter<TimePeriod | null> = new EventEmitter();
   // eslint-disable-next-line @angular-eslint/no-output-rename
   @Output('rangeClicked') rangeClicked: EventEmitter<DateRange> = new EventEmitter();
+  // eslint-disable-next-line @angular-eslint/no-output-rename
+  @Output('showCalInRangesChanged') showCalInRangesChanged: EventEmitter<boolean> = new EventEmitter();
   // eslint-disable-next-line @angular-eslint/no-output-rename
   @Output('datesUpdated') datesUpdated: EventEmitter<TimePeriod> = new EventEmitter();
   @Output() startDateChanged: EventEmitter<StartDate> = new EventEmitter();
@@ -160,6 +172,7 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
   private valueHolder: TimePeriod | null;
   private localeDiffer: KeyValueDiffer<string, any>;
   private localeHolder: LocaleConfig = {};
+  private showCallInRanges: boolean;
 
   constructor(
     public viewContainerRef: ViewContainerRef,
@@ -262,6 +275,10 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
 
   @HostListener('keyup', ['$event'])
   inputChanged(e: KeyboardEvent): void {
+    // ensures the selected date on the calendar remains intact when the user navigates between inputs using the Tab key
+    if (e.key === 'Tab') {
+      return;
+    }
     if ((e.target as HTMLElement).tagName.toLowerCase() !== 'input') {
       return;
     }
@@ -308,6 +325,10 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
     });
     this.picker.rangeClicked.asObservable().subscribe((range: DateRange) => {
       this.rangeClicked.emit(range);
+    });
+    this.picker.showCalInRangesChanged.asObservable().subscribe((showCalInRanges: boolean) => {
+      this.showCallInRanges = showCalInRanges;
+      this.adjustToFitCalInRange();
     });
     this.picker.datesUpdated.asObservable().subscribe((range: TimePeriod) => {
       this.datesUpdated.emit(range);
@@ -417,9 +438,11 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
     } else if (this.opens === 'right') {
       style = {
         top: containerTop,
-        left: element.offsetLeft + 'px',
+        left: element.offsetLeft + element.clientWidth - container.clientWidth + 'px',
         right: 'auto'
       };
+    } else if (this.opens === 'fit') {
+      this.adjustToFitCalInRange({ containerTop });
     } else {
       const position = element.offsetLeft + element.clientWidth / 2 - container.clientWidth / 2;
       if (position < 0) {
@@ -441,6 +464,53 @@ export class DaterangepickerDirective implements OnInit, OnChanges, DoCheck {
       this.renderer.setStyle(container, 'left', style.left);
       this.renderer.setStyle(container, 'right', style.right);
     }
+  }
+
+  /**
+   * Adjusts the position and styling of the date range picker container to ensure it fits within the viewport
+   * when a custom range is selected. This function calculates the appropriate left and right positioning
+   * based on the element's current position, the desired container width, and the available viewport width.
+   * It ensures that the container does not go off-screen on either the left or right side.
+   *
+   * @param containerTop - The calculated top position for the container, or 'auto' if not specified.
+   */
+  private adjustToFitCalInRange({ containerTop = 'auto' }: { containerTop?: string } = {}): void {
+    const container = this.picker.pickerContainer.nativeElement;
+    const element = this.el.nativeElement;
+
+    if (!this.showCallInRanges) {
+      this.renderer.setStyle(container, 'top', containerTop);
+      this.renderer.setStyle(container, 'left', 'auto');
+      this.renderer.setStyle(container, 'right', 'auto');
+      this.renderer.setStyle(container, 'max-width', '220px');
+      return;
+    }
+
+    const rect = element.getBoundingClientRect();
+    const initialLeft = rect.left;
+    const initialRight = rect.right;
+    const containerWidth = 740; // assuming 740px is the desired width
+    const viewportWidth = window.innerWidth;
+
+    let leftPosition = 0;
+    let rightPosition = 562;
+
+    // Check if container would go off-screen
+    const offset = initialLeft + containerWidth;
+    if (offset > viewportWidth) {
+      leftPosition = offset - viewportWidth + 30; // padding from the right edge
+      rightPosition = viewportWidth - initialRight;
+    }
+
+    // Ensure it doesn't go off on the left side
+    if (leftPosition < 0) {
+      leftPosition = 0;
+    }
+
+    this.renderer.setStyle(container, 'top', containerTop || 'auto');
+    this.renderer.setStyle(container, 'left', `${leftPosition ? '-' + leftPosition : leftPosition}px`, RendererStyleFlags2.Important);
+    this.renderer.setStyle(container, 'right', `-${rightPosition}px`, RendererStyleFlags2.Important);
+    this.renderer.setStyle(container, 'max-width', '762px');
   }
 
   private setValue(val: TimePeriod) {

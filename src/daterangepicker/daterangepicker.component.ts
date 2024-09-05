@@ -46,6 +46,10 @@ export interface DateRange {
   dates: [Dayjs, Dayjs];
 }
 
+export interface RangeLabel {
+  isCustom: boolean;
+}
+
 export interface ChosenDate {
   chosenLabel: string;
   startDate: Dayjs;
@@ -252,6 +256,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
   @Input() closeOnAutoApply = true;
   @Output() choosedDate: EventEmitter<ChosenDate>;
   @Output() rangeClicked: EventEmitter<DateRange>;
+  @Output() showCalInRangesChanged: EventEmitter<boolean>;
   @Output() datesUpdated: EventEmitter<TimePeriod>;
   @Output() startDateChanged: EventEmitter<StartDate>;
   @Output() endDateChanged: EventEmitter<EndDate>;
@@ -294,6 +299,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
   constructor(private el: ElementRef, private ref: ChangeDetectorRef, private localeHolderService: LocaleService) {
     this.choosedDate = new EventEmitter();
     this.rangeClicked = new EventEmitter();
+    this.showCalInRangesChanged = new EventEmitter();
     this.datesUpdated = new EventEmitter();
     this.startDateChanged = new EventEmitter();
     this.endDateChanged = new EventEmitter();
@@ -479,6 +485,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
         this.rangesArray.push(this.locale.customRangeLabel);
       }
       this.showCalInRanges = !this.rangesArray.length || this.alwaysShowCalendars;
+      this.showCalInRangesChanged.emit(this.showCalInRanges);
       if (!this.timePicker) {
         this.startDate = this.startDate.startOf('day');
         this.endDate = this.endDate.endOf('day');
@@ -954,6 +961,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
         }
         // if custom label: show calendar
         this.showCalInRanges = true;
+        this.showCalInRangesChanged.emit(this.showCalInRanges);
       }
     }
 
@@ -1272,6 +1280,9 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
     if (label === this.locale.customRangeLabel) {
       this.isShown = true; // show calendars
       this.showCalInRanges = true;
+      this.showCalInRangesChanged.emit(this.showCalInRanges);
+      // keep the predefined range selection active until the user selects a date outside of the predefined ranges
+      this.calculateChosenLabel();
     } else {
       const dates = this.ranges[label];
       if (this.minDate && dates[0].isBefore(this.minDate)) {
@@ -1290,6 +1301,7 @@ export class DaterangepickerComponent implements OnInit, OnChanges {
         this.calculateChosenLabel();
       }
       this.showCalInRanges = !this.rangesArray.length || this.alwaysShowCalendars;
+      this.showCalInRangesChanged.emit(this.showCalInRanges);
 
       if (!this.timePicker) {
         this.startDate = this.startDate.startOf('day');
