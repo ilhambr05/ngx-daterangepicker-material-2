@@ -211,7 +211,7 @@ In your component's TypeScript file, use the following code to open the datepick
   }
 ```
 
-### Open multiple datepickers from outside
+#### Open multiple datepickers from outside
 
 The approach above works well for a single datepicker, but if you have multiple datepickers on the same page, triggering one will cause all of them to open simultaneously. To avoid this, you can use **template reference variables** to target each datepicker individually and then call the `.focus()` event from anywhere.
 
@@ -241,7 +241,7 @@ In this setup:
 
 This approach eliminates the need for additional JavaScript code, resulting in a cleaner and more maintainable implementation. Always remember to apply the ngx-daterangepicker-action class to the trigger elements to prevent unintended closures when clicking outside.
 
-### Enhancing User Experience with Keyboard Navigation for Multiple Datepickers
+#### Enhancing User Experience with Keyboard Navigation for Multiple Datepickers
 
 Enabling Tab key navigation for multiple datepickers significantly enhances user experience, particularly in forms requiring multiple date inputs, such as booking systems or scheduling applications. This approach improves accessibility by allowing users, including those with disabilities or those who prefer keyboard navigation, to efficiently move through datepicker inputs without relying on a mouse. As users press the Tab key, focus shifts between datepicker inputs, opening each one automatically if configured to do so, which streamlines the date selection process. This method not only increases efficiency and reduces errors but also ensures a consistent and intuitive user experience, making your application more accessible and user-friendly. By adopting this best practice, you cater to a wider range of users, ultimately improving the usability and inclusivity of your forms.
 
