@@ -327,6 +327,10 @@ Open `http//:localhost:4200` on your browser.
 
 Run `npm test` or `ng test` to run tests.
 
+## Publish as npm packages
+
+Run `npm run publish-now` to run publish to NPM.
+
 
 ## [License](https://github.com/fetrarij/ngx-daterangepicker-material/blob/master/LICENSE)
 MIT
